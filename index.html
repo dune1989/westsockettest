@@ -120,8 +120,56 @@
           var mediaStreamSource = [];
           var audprocessor = [];
           var audioContext = [];
-        
           
+          <!-- Javascript processing start here -->
+          $(document).ready(function(){
+              if(global_username=="") {
+              var person = prompt("Please enter your name", "");
+              if (person != null) {
+                    global_username = person;
+                    user = global_username;
+                  } else if($.trim(person)=="") {
+                      alert("Please enter name!"); 
+                      document.location.href = "/";
+                  }
+              }
+              users.push(user);
+              if (!Notification) {
+                  alert('Desktop notifications not available in your browser. Try Chromium.'); 
+                  return;
+              }
+
+              if (Notification.permission !== "granted")
+                Notification.requestPermission();
+
+              var tmpusrname = user.split("_");
+              $("#user_list_dtl").append("<li id='user_list_dtl_"+user+"'>"+tmpusrname[0]+"</li>"); 
+
+              if (!hasGetUserMedia()) {
+                  alert('getUserMedia() is not supported by your browser');
+                  document.location.href = redirect;
+              }
+
+              navigator.mediaDevices.enumerateDevices()
+              .then(gotDevices).catch(onError);
+
+              navigator.mediaDevices.getUserMedia({audio:true, video:true})
+              .then(ownstream => yourVideo.srcObject = ownstream);
+              
+              /create a new WebSocket object.
+              var wsUri = "wss://connect.websocket.in/rtctrial?room_id=generalroom"; 	
+              websocket = null;
+            
+              websocket = new WebSocket(wsUri); 
+
+              websocket.onopen = function(ev) { // connection is open
+                  register_zone();
+                  setTimeout("send_indentity();", 100);    
+                  $("#terminal").html("<div>Room Connected</div>");             
+              }
+              
+              return;
+          });  
       </script>   
   </body>
 </html>
