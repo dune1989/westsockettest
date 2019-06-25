@@ -41,7 +41,89 @@
               height: 100%;
           }
       </style>
+      <h1>Geetings - Room123</h1>
+      <div id='terminal'></div>
+      <ul id='user_list_dtl'>
+      <li>Share the link to invite more people..</li>
+      </ul>
+
+      <div id="remoteViewContainer" class="row">
+          <div class="col-md-3 videobox">
+              <div class="thumbnail">
+                <video id="localVideo" autoplay muted controls style="display:none"></video>
+                <div class="caption">
+                  <h3>You</h3>
+                </div>
+              </div>
+          </div>
+      </div>
+      
+      <script type="text/javascript">
+          var global_username = '<?=(isset($_GET['name']))? $_GET['name'] : ''?>';
+          var global_channel = '<?=(isset($_GET['room']))? $_GET['room'] : 'test'?>';
+          var global_usernames = new Array();
+          var global_users = new Array();
+          var idx = '';
+          var global_temp_users = '';
+          var websocket = null;
+          var socket_host = '<?php echo $_SERVER['SERVER_NAME']?>';
+          var socket_port = '9996';
+          var wsretry = null;
+          var user = global_username;
+          var users = [];
+          var websocket_worker = null;
+          var redirect = "/utils";
+
+          //webRTC
+          var configuration = {
+           iceServers: [
+            {urls:"stun:stun.l.google.com:19302"},
+            {
+             urls: 'turn:172.21.76.10:3478',
+             username: 'test',
+             credential: 'test'
+           }]
+          };
+
+          function onSuccess() {};
+          function onError(error) {
+            console.log(error);
+          };
+
+          function hasGetUserMedia() {
+            return !!(navigator.mediaDevices &&
+              navigator.mediaDevices.getUserMedia);
+          }
+
+          function gotDevices(deviceInfos) {
+            if(deviceInfos.length==0) {
+                alert("Your device has no media!"); 
+                document.location.href = "/";
+            }
+            for (let i = 0; i !== deviceInfos.length; ++i) {
+              const deviceInfo = deviceInfos[i];
+              console.log('Found device: ', deviceInfo);
+            }
+          }
+
+          let connection = null
+          let pc = [];
+          let name = null
+          let localStream
+          var sdpmsg = [];
+          var yourVideo = document.getElementById("localVideo");
+          var friendsVideo = document.getElementById("remoteVideo");
+          var offerecv = [];
+          var ownstream = null;
+          var checker;
+          var negotiating = [];
+          var mediaStreamSource = [];
+          var audprocessor = [];
+          var audioContext = [];
+        
+          
+      </script>   
   </body>
 </html>
 
-wss://connect.websocket.in/rtctrial?room_id=generalroom
+<!-- wss://connect.websocket.in/rtctrial?room_id=generalroom -->
