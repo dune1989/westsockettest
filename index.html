@@ -173,16 +173,19 @@
                   $("#terminal").html("<div>Room Connected</div>");             
               }
             
-              websocket.onmessage = function(ev) {
-                   //var data; 
-                   //accepting only JSON messages 
-                   //try { 
-                   //   data = JSON.parse(message); 
-                   //} catch (e) { 
-                   //   console.log("Invalid JSON"); 
-                   //   data = {}; 
-                   //}
-                   console.log(ev);
+              websocket.onmessage = function(message) {
+                   var data; 
+                
+                   accepting only JSON messages 
+                   try { 
+                      data = JSON.parse(message); 
+                   } catch (e) { 
+                      console.log("Invalid JSON"); 
+                      data = {}; 
+                   }
+                   
+                   console.log(data);
+                   console.log(message);
                    //message('<p class="message">Received: '+ev.data);  
               };
 
