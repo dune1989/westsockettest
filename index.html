@@ -195,10 +195,9 @@
                       data = {}; 
                    }
                 
-                   websocket.send(tempuser + "is In!/n");
-                
+                   //websocket.send(tempuser + "is In!/n")
                    //switching type of the user message 
-                   //switch (data.type) { 
+                   switch (data.type) { 
                       //when a user tries to login 
                       //case "login": 
                          //console.log("User logged:", data.name); 
@@ -220,13 +219,17 @@
                             //}); 
                          //} 
                          //break;
-                      //default: 
+                      default: 
+                         websocket.send({ 
+                            type: "noaction", 
+                            message: "Command no found: " 
+                         });
                          //sendTo(connection, { 
                          //   type: "error", 
                          //   message: "Command no found: " + data.type 
                          //}); 
-                         //break; 
-                   //} 
+                         break; 
+                   } 
                        
                     //expose result
                     console.log(global_users);
@@ -236,37 +239,38 @@
               websocket.onerror = function(ev){
                   console.log("websocket error"+ev)
               }; 
+            
               websocket.onclose = function(ev){ 
                   console.log("websocket close"+ev)
               }; 
 
               clearInterval(checker);
-              /*checker = setInterval(function(){
-                  try {
-                      send_indentity();  
-                      //console.log("send_indentity ")
-                      } catch(err) {console.log("send_indentity "+err.message)}
-                  }, 5000);
+                  /*checker = setInterval(function(){
+                      try {
+                          send_indentity();  
+                          //console.log("send_indentity ")
+                          } catch(err) {console.log("send_indentity "+err.message)}
+                      }, 5000);
 
-                  $("#remoteVideo").click(function(){
+                      $("#remoteVideo").click(function(){
 
-                  });
-              }); */
-          });  
+                      });
+                  }); */
+          });  //end of 
         
           function register_zone() {        
-                  var msg = {"command":{"identify":global_username, "zone":global_channel}};
-                  if(websocket!=null) {
-                      websocket.send(JSON.stringify(msg));
-                  }
+              var msg = {"command":{"identify":global_username, "zone":global_channel}};
+              if(websocket!=null) {
+                  websocket.send(JSON.stringify(msg));
               }
+          }
 
-              function send_indentity() {        
-                  var msg = {"checkin":{"username":global_username, "user":global_username}};
-                  send_data(msg, '');
-              }
+          function send_indentity() {        
+              var msg = {"checkin":{"username":global_username, "user":global_username}};
+              send_data(msg, '');
+          }
             
-              function send_data(msg, to) {
+            function send_data(msg, to) {
                 msg = JSON.stringify(msg);
                 var obj;
                 if(to!='') {
@@ -274,6 +278,7 @@
                 } else {
                     obj = {"data":{"id":global_username, "zone":global_channel, "datas":msg}};
                 }
+              
                 if(websocket!=null) {
                     try {
                     websocket.send(JSON.stringify(obj));
@@ -283,7 +288,7 @@
                         //start_websocket();
                     } catch(err) {}
                 }
-            }
+          }
       </script>   
   </body>
 </html>
