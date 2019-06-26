@@ -132,6 +132,7 @@
               if (person != null) {
                     global_username = person;
                     user = global_username;
+                    global_users.push(user);
                   } else if($.trim(person)=="") {
                       alert("Please enter name!"); 
                       //document.location.href = "/";
@@ -169,7 +170,7 @@
 
               websocket.onopen = function(ev) { // connection is open
                   register_zone();
-                  //setTimeout("send_indentity();", 100);    
+                  setTimeout("send_indentity();", 100);    
                   $("#terminal").html("<div>Room Connected</div>");             
               }
             
@@ -180,15 +181,17 @@
                    //accepting only JSON messages 
                    try { 
                       data = JSON.parse(message.data);
-                      tempuser = data.command;
+                      tempuser = data.command.identify;
+                     
+                      //if not empty push into array
+                      global_users.push(tempuser);
+                     
                    } catch (e) { 
                       console.log("Invalid JSON"); 
                       data = {}; 
                    }
                    
-                   console.log(tempuser.identify);
-                   console.log(tempuser);
-                   console.log(data);
+                   console.log(global_users);
                    console.log(message);
                    //message('<p class="message">Received: '+ev.data);  
               };
