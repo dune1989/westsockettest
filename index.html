@@ -184,9 +184,14 @@
                       tempuser = data.command.identify;
                      
                       //if not empty push into array
-                      global_users.push(tempuser);
+                      if(tempuser != ""){
+                         global_users.push(tempuser);
+                      } else {
+                         console.log(message);
+                      }
                    } catch (e) { 
-                      console.log("Invalid JSON"); 
+                      console.log(e); 
+                      //console.log("Invalid JSON"); 
                       data = {}; 
                    }
                 
