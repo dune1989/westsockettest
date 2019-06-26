@@ -64,7 +64,7 @@
       
       <script type="text/javascript">
           var global_username = '';
-          var global_channel = '';
+          var global_channel = 'room123';
           var global_usernames = new Array();
           var global_users = new Array();
           var idx = '';
@@ -174,16 +174,20 @@
               }
             
               websocket.onmessage = function(message) {
-                   var data; 
+                   var data;
+                   var tempuser = "";
                 
                    //accepting only JSON messages 
                    try { 
-                      data = JSON.parse(message.data); 
+                      data = JSON.parse(message.data);
+                      tempuser = data.command;
                    } catch (e) { 
                       console.log("Invalid JSON"); 
                       data = {}; 
                    }
                    
+                   console.log(tempuser.identify);
+                   console.log(tempuser);
                    console.log(data);
                    console.log(message);
                    //message('<p class="message">Received: '+ev.data);  
