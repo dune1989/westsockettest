@@ -178,7 +178,7 @@
                 
                    //accepting only JSON messages 
                    try { 
-                      data = JSON.parse(message); 
+                      data = JSON.parse(message.data); 
                    } catch (e) { 
                       console.log("Invalid JSON"); 
                       data = {}; 
