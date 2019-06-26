@@ -246,8 +246,38 @@
 
                   });
               }); */
-            }
           });  
+        
+          function register_zone() {        
+                  var msg = {"command":{"identify":global_username, "zone":global_channel}};
+                  if(websocket!=null) {
+                      websocket.send(JSON.stringify(msg));
+                  }
+              }
+
+              function send_indentity() {        
+                  var msg = {"checkin":{"username":global_username, "user":global_username}};
+                  send_data(msg, '');
+              }
+            
+              function send_data(msg, to) {
+                msg = JSON.stringify(msg);
+                var obj;
+                if(to!='') {
+                    obj = {"data":{"id":global_username, "zone":global_channel, "datas":msg, "to":to}};
+                } else {
+                    obj = {"data":{"id":global_username, "zone":global_channel, "datas":msg}};
+                }
+                if(websocket!=null) {
+                    try {
+                    websocket.send(JSON.stringify(obj));
+                    } catch(err) {console.log("websocket send_data "+err.message)}
+                } else {
+                    try {
+                        //start_websocket();
+                    } catch(err) {}
+                }
+            }
       </script>   
   </body>
 </html>
