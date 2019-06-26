@@ -137,6 +137,7 @@
                       //document.location.href = "/";
                   }
               }
+            
               users.push(user);
               if (!Notification) {
                   alert('Desktop notifications not available in your browser. Try Chromium.'); 
@@ -184,7 +185,7 @@
               }; 
 
               clearInterval(checker);
-              checker = setInterval(function(){
+              /*checker = setInterval(function(){
                   try {
                       send_indentity();  
                       //console.log("send_indentity ")
@@ -194,7 +195,7 @@
                   $("#remoteVideo").click(function(){
 
                   });
-              });
+              }); */
             
               function register_zone() {        
                   var msg = {"command":{"identify":global_username, "zone":global_channel}};
