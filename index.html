@@ -219,12 +219,12 @@
                             type: "error", 
                             message: "Command no found: " + data.type 
                          }); 
-
                          break; 
+                   } 
                        
-                      //expose result
-                      console.log(global_users);
-                      console.log(message);
+                    //expose result
+                    console.log(global_users);
+                    console.log(message);
               };
 
               websocket.onerror = function(ev){
