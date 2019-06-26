@@ -78,18 +78,8 @@
           var websocket_worker = null;
           //var redirect = "/utils";
 
-          //webRTC
-          var configuration = {
-           iceServers: [
-            {urls:"stun:stun.l.google.com:19302"},
-            {
-             urls: 'turn:172.21.76.10:3478',
-             username: 'test',
-             credential: 'test'
-           }]
-          };
-
           function onSuccess() {};
+        
           function onError(error) {
             console.log(error);
           };
@@ -138,8 +128,11 @@
                       //document.location.href = "/";
                   }
               }
-            
+              
+              //put user into the 
               users.push(user);
+              
+              //error for notification
               if (!Notification) {
                   alert('Desktop notifications not available in your browser. Try Chromium.'); 
                   return;
@@ -175,64 +168,161 @@
               }
             
               websocket.onmessage = function(message) {
-                   var data;
-                   var tempuser = ""; //to store temporary user received
-                
-                   //accepting only JSON messages 
-                   try { 
-                      data = JSON.parse(message.data);
-                      tempuser = data.command.identify;
-                     
-                      //if not empty push into array
-                      if(tempuser != ""){
-                         global_users.push(tempuser);
-                      } else {
-                         console.log(message);
+                  try {
+                      //PHP sends Json data
+                      var msg = JSON.parse(message.data);
+                      //console.log(JSON.stringify(msg));
+                      var obj;
+                      if (typeof msg.data!="undefined") {
+                          
+                          if($("#user_list_dtl_"+msguserid).length <= 0 || $("#video"+msguserid).length==0) {
+                              if((typeof pc[msguserid]=="undefined" || pc[msguserid]==null) && msguserid!=global_username) {
+                                  //notifyMe("Geetings - "+msguserid+" joined", msguserid + " joined "+global_channel);
+                                  console.log("creating RTCPeerConnection for " + msguserid)
+                                  remove_user_element(msguserid)
+
+                                  negotiating[msguserid] = false;
+                                  pc[msguserid] = new RTCPeerConnection(configuration);
+                                  if($("#video"+msguserid+"_"+global_username).length==0) {
+                                      add_videobox(msguserid+"_"+global_username, "hide")                
+                                  }
+                                  if($("#video"+msguserid).length==0) {
+                                      add_videobox(msguserid, "")                
+                                  }
+                                  let _tempVideo = document.getElementById("video"+msguserid+"_"+global_username);
+                                  let _tempStream;
+                                  navigator.mediaDevices.getUserMedia({audio:true, video:false})
+                                  .then(thestream => _tempVideo.srcObject = thestream)
+                                  .then(thestream => pc[msguserid].addStream(thestream))
+                                  return;
+                                  .then(() => {
+                                      pc[msguserid].onicecandidate = function(event) {
+                                          console.log(event.candidate);
+                                          if(event.candidate) {
+                                              send_data({'type':'ice', 'ice': event.candidate}, msguserid)
+                                          }
+                                      }
+                                      $("#user_list_dtl").append("<li id='user_list_dtl_"+msguserid+"'>"+msguserid+"</li>");   
+                                      pc[msguserid].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
+                                          if(pc[msguserid]!=null && typeof pc[msguserid].signalingState!="undefined" && pc[msguserid].signalingState!=null) {
+                                              console.log("signalingState " + msguserid + " " + pc[msguserid].signalingState)
+                                              negotiating[msguserid] = pc[msguserid].signalingState;//(pc[msguserid].signalingState != "stable");
+                                          }
+                                          //have-local-offer
+                                      }
+
+                                      pc[msguserid].onconnectionstatechange = function(event) {
+                                          try {
+                                              switch(pc[msguserid].connectionState) {
+                                                case "connected":
+                                                  // The connection has become fully connected
+                                                  console.log("RTCPeerConnection connected for "+msguserid)                                            
+                                                  break
+                                                case "disconnected":
+                                                  console.log("RTCPeerConnection disconnected for "+msguserid)
+                                                  remove_user_element(msguserid)
+                                                  break
+                                                case "failed":
+                                                  console.log("RTCPeerConnection failed for "+msguserid)
+                                                  remove_user_element(msguserid)
+                                                  break
+                                                case "closed":
+                                                  console.log("RTCPeerConnection closed for "+msguserid)
+                                                  remove_user_element(msguserid)
+
+                                                  // The connection has been closed
+                                                  break
+                                              }
+                                          } catch(err) {console.log(err)}
+                                      }
+
+                                      pc[msguserid].onaddstream = (event) => {
+                                          try {
+                                              if(event.stream) {                                    
+                                                 $("#video"+msguserid).show();
+                                                 var streams = pc[msguserid].getRemoteStreams();
+                                                 for (var stream of streams) {
+                                                    console.log("Remote streams: " + msguserid); //stream.id
+                                                    if($("#video"+msguserid).length==0) {
+                                                        add_videobox(msguserid, "")                
+                                                    }
+                                                    let _friendsVideo = document.getElementById("video"+msguserid);
+                                                    _friendsVideo.srcObject = stream;
+                                                      /*audioContext[msguserid] = new AudioContext();
+                                                      mediaStreamSource[msguserid] = audioContext[msguserid].createMediaStreamSource(stream);
+                                                      audprocessor[msguserid] = audioContext[msguserid].createScriptProcessor(2048, 1, 1);
+                                                      mediaStreamSource[msguserid].connect(audioContext[msguserid].destination);
+                                                      mediaStreamSource[msguserid].connect(audprocessor[msguserid]);
+                                                      audprocessor[msguserid].connect(audioContext[msguserid].destination);
+                                                      audprocessor[msguserid].onaudioprocess = function (e) {
+                                                          let inputData = e.inputBuffer.getChannelData(0);
+                                                          let inputDataLength = inputData.length;
+                                                          let total = 0;
+                                                          for (let i = 0; i < inputDataLength; i++) {
+                                                              total += Math.abs(inputData[i++]);
+                                                          }
+
+                                                          let rms = Math.sqrt(total / inputDataLength);
+                                                          updateMeter(msguserid, rms * 100);
+                                                      };*/
+                                                 }
+                                              } 
+                                              else {
+                                                  pc[msguserid].createOffer()
+                                                 .then(offer => pc[msguserid].setLocalDescription(offer) )
+                                                 .then(() => send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid))
+                                              }
+                                          } catch(err) { console.log(err) }   
+                                      }                           
+
+                                  })
+                                  .then(() => {
+                                      if(typeof pc[msguserid]!="undefined" && pc[msguserid]!=null && negotiating[msguserid]!="have-local-offer") {
+                                          try {             
+
+                                          pc[msguserid].createOffer()
+                                          .then(offer => pc[msguserid].setLocalDescription(offer) )
+                                          .then(() => send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid))
+                                          .then(() => console.log("offer sent to: "+msguserid))
+                                          .then(() => {
+                                              setTimeout(function(){
+                                                  pc[msguserid].createOffer()
+                                                  .then(offer => pc[msguserid].setLocalDescription(offer) )
+                                                  .then(() => send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid))
+                                                  console.log("offer sent again to: "+msguserid)
+                                                  //$("#connect"+msguserid).hide();
+                                              }, 5000)
+                                          })
+
+                                          pc[msguserid].onnegotiationneeded = function () {
+                                              pc[msguserid].createOffer()
+                                              .then(offer => { try { pc[msguserid].setLocalDescription(offer) } catch(err) { } })
+                                              .then(() => {
+                                                      try {
+                                                          send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid)
+                                                      } catch(err) { } 
+                                                  }
+                                              )
+                                              console.log("onnegotiationneeded offer sent to: "+msguserid)
+                                          }
+
+                                          } catch(err) { console.log(err) }            
+                                      }
+                                  })
+                              }                    
+                          }
+                          
+                      } else if (msg.disconnect!=undefined) {
+                          obj = msg.disconnect;   
+                          var msguserid = obj.user;
+                          remove_user_element(msguserid)
+
+                          //self.postMessage({"action":"onmessage", "data":{"type":"disconnect","obj":obj}});            
+                          setTimeout("send_indentity();", 500);
                       }
-                   } catch (e) { 
-                      console.log(e); 
-                      //console.log("Invalid JSON"); 
-                      data = {}; 
-                   }
-                
-                   //websocket.send(tempuser + "is In!/n")
-                   //switching type of the user message 
-                   switch (data.type) { 
-                      //when a user tries to login 
-                      //case "login": 
-                         //console.log("User logged:", data.name); 
-
-                         //if anyone is logged in with this username then refuse 
-                         //if(users[data.name]) { 
-                            //sendTo(connection, { 
-                            //   type: "login",
-                            //   success: false 
-                            //}); 
-                         //} else { 
-                            //save user connection on the server 
-                            //users[data.name] = connection; 
-                            //connection.name = data.name; 
-
-                            //sendTo(connection, { 
-                            //   type: "login", 
-                            //   success: true 
-                            //}); 
-                         //} 
-                         //break;
-                      default: 
-                         var msg = { type: "noaction", message: "Command no found: " };
-                         msg = JSON.stringify(msg)    
-                         websocket.send(msg);
-                         //sendTo(connection, { 
-                         //   type: "error", 
-                         //   message: "Command no found: " + data.type 
-                         //}); 
-                         break; 
-                   } 
-                       
-                    //expose result
-                    console.log(global_users);
-                    console.log(message);
+                    
+                      msg = null;
+                  } catch (err0) { console.log("websocket.onmessage 0 - " + err0); }
               };
 
               websocket.onerror = function(ev){
