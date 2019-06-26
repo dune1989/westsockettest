@@ -63,20 +63,20 @@
       </div>
       
       <script type="text/javascript">
-          var global_username = '<?=(isset($_GET['name']))? $_GET['name'] : ''?>';
-          var global_channel = '<?=(isset($_GET['room']))? $_GET['room'] : 'test'?>';
+          var global_username = '';
+          var global_channel = '';
           var global_usernames = new Array();
           var global_users = new Array();
           var idx = '';
           var global_temp_users = '';
           var websocket = null;
-          var socket_host = '<?php echo $_SERVER['SERVER_NAME']?>';
+          var socket_host = '';
           var socket_port = '9996';
           var wsretry = null;
           var user = global_username;
           var users = [];
           var websocket_worker = null;
-          var redirect = "/utils";
+          //var redirect = "/utils";
 
           //webRTC
           var configuration = {
