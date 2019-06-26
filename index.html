@@ -160,7 +160,7 @@
               navigator.mediaDevices.getUserMedia({audio:true, video:true})
               .then(ownstream => yourVideo.srcObject = ownstream);
               
-              /create a new WebSocket object.
+              //create a new WebSocket object.
               var wsUri = "wss://connect.websocket.in/rtctrial?room_id=generalroom"; 	
               websocket = null;
             
