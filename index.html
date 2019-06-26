@@ -220,10 +220,9 @@
                          //} 
                          //break;
                       default: 
-                         websocket.send({ 
-                            type: "noaction", 
-                            message: "Command no found: " 
-                         });
+                         var msg = { type: "noaction", message: "Command no found: " };
+                         msg = JSON.stringify(msg)    
+                         websocket.send(msg);
                          //sendTo(connection, { 
                          //   type: "error", 
                          //   message: "Command no found: " + data.type 
