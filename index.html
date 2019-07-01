@@ -270,7 +270,7 @@
                                               else {
                                                   pc[msguserid].createOffer()
                                                  .then(offer => pc[msguserid].setLocalDescription(offer) )
-                                                 .then(() => send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid))
+                                                 .then(() => send_data(pc[msguserid].localDescription, msguserid))
                                               }
                                           } catch(err) { console.log(err) }   
                                       }                           
@@ -282,13 +282,13 @@
 
                                           pc[msguserid].createOffer()
                                           .then(offer => pc[msguserid].setLocalDescription(offer) )
-                                          .then(() => send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid))
+                                          .then(() => send_data(pc[msguserid].localDescription, msguserid))
                                           .then(() => console.log("offer sent to: "+msguserid))
                                           .then(() => {
                                               setTimeout(function(){
                                                   pc[msguserid].createOffer()
                                                   .then(offer => pc[msguserid].setLocalDescription(offer) )
-                                                  .then(() => send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid))
+                                                  .then(() => send_data(pc[msguserid].localDescription, msguserid))
                                                   console.log("offer sent again to: "+msguserid)
                                                   //$("#connect"+msguserid).hide();
                                               }, 5000)
@@ -299,7 +299,7 @@
                                               .then(offer => { try { pc[msguserid].setLocalDescription(offer) } catch(err) { } })
                                               .then(() => {
                                                       try {
-                                                          send_sdp(JSON.stringify(pc[msguserid].localDescription), msguserid)
+                                                          send_data(pc[msguserid].localDescription, msguserid)
                                                       } catch(err) { } 
                                                   }
                                               )
